@@ -8,17 +8,34 @@
 import SwiftUI
 import SwiftData
 
-import SwiftUI
+enum Tab {
+    case customer
+    case sales
+}
 
 struct ContentView: View {
+    @State private var selectedTab: Tab = .customer
+    @State private var salesRecapNeedsVerification = true
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView(selection: $selectedTab){
+            Calculator()
+                .tabItem{
+                    Label("Customer", systemImage: "person.2.fill")
+                }
+                .tag(Tab.customer)
+            needVerify(needVerification: $salesRecapNeedsVerification)
+                .tabItem{
+                    Label("Sales", systemImage: "cart.fill")
+                }
+                .tag(Tab.sales)
         }
-        .padding()
+        .onChange(of: selectedTab) { newTab in
+            if newTab != .sales {
+                salesRecapNeedsVerification = true
+            }
+            
+        }
     }
 }
 
