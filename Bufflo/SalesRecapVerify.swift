@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SalesRecapVerify: View {
     @State private var pin: String = ""
+    @State private var showAlert = false
     let onSuccess: () -> Void
     
     
@@ -19,7 +20,16 @@ struct SalesRecapVerify: View {
             .toolbar{
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
-                        onSuccess() //sets needVerification to false
+                        if pin ==  "8888"{
+                            onSuccess() //sets needVerification to false
+                        } else {
+                            showAlert=true
+                        }
+                    }
+                    .alert(isPresented: $showAlert){
+                        Alert(
+                                    title: Text("Wrong PIN")
+                                )
                     }
                 }
             }
