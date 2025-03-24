@@ -1,20 +1,18 @@
-//
-//  SalesRecapCheck.swift
-//  Bufflo
-//
-//  Created by Jessica Lynn on 24/03/25.
-//
-
 import SwiftUI
 
 struct SalesRecapVerify: View {
+    @State private var pin: String = ""
     let onSuccess: () -> Void
+    
     
     var body: some View {
         NavigationStack{
             VStack{
-                // password input
-                
+                SecureField("Enter PIN", text: $pin)
+                    .keyboardType(.numberPad)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding()
+                    //perlu bikin page buat set up pin??w
             }
             .navigationTitle("Verification")
             .navigationBarTitleDisplayMode(.inline)
