@@ -12,8 +12,9 @@ struct SalesRecapVerify: View {
                 SecureField("Enter PIN", text: $pin)
                     .keyboardType(.numberPad)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding()
-                    //perlu bikin page buat set up pin??w
+                    .padding(.horizontal, 50)
+//                    .frame(width: 20, height: 20)
+                //smntr gini, nnti bs dicakepin ky passcode
             }
             .navigationTitle("Verification")
             .navigationBarTitleDisplayMode(.inline)
