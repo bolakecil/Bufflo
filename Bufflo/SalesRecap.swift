@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct SalesRecap: View {
     @State private var timeOfDay: String = "Morning"
@@ -14,6 +15,7 @@ struct SalesRecap: View {
     @State private var todaySales: Int = 16
     @State private var timeRange: String = "Today"
     
+    
     private var timeRanges = ["Today", "This Week", "This Month"]
     
     var body: some View {
@@ -21,34 +23,41 @@ struct SalesRecap: View {
             VStack(alignment: .leading) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 20)
-                        .fill(.gray)
+                        .foregroundColor(.lightBlue)
                         .padding(20)
                         .frame(height: 210)
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
                             Text("Total Income This Month")
                                 .font(.system(size: 22, weight: .bold, design: .default))
-                                .foregroundColor(.black)
+                                .foregroundColor(.white)
                             Spacer()
                         }
                         Text("Rp \(totalIncome)") //double?
                             .font(.system(size: 33, weight: .bold, design: .default))
+                            .foregroundColor(.white)
                         VStack{
                             HStack{
                                 Text("Today's Income")
+                                    .font(.system(size: 15, weight: .none, design: .default))
+                                    .foregroundColor(.white)
                                 Spacer()
                                 Text("Today's Sales")
+                                    .font(.system(size: 15, weight: .none, design: .default))
+                                    .foregroundColor(.white)
                             }
                             HStack{
                                 HStack {
                                     Text("Rp \(todayIncome)")
                                         .font(.system(size: 17, weight: .bold, design: .default))
+                                        .foregroundColor(.white)
                                     Image(systemName: "arrowtriangle.up.fill")
                                         .foregroundColor(.green)
                                 }
                                 Spacer()
                                 Text("\(todaySales)")
                                     .font(.system(size: 17, weight: .bold, design: .default))
+                                    .foregroundColor(.white)
                             }
                         }
                     }.padding(.horizontal, 38)
@@ -64,11 +73,17 @@ struct SalesRecap: View {
                 Spacer()
                 //fill here
             }
-            .navigationTitle("Good \(updateTimeOfDay())")
+            .navigationTitle("Good \(timeOfDay)").foregroundColor(.darkBlue)
             
         }
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            timeOfDay = updateTimeOfDay()
+        }
+
     }
+    
+    
     
     func updateTimeOfDay() -> String {
         let calendar = Calendar.current
@@ -84,8 +99,8 @@ struct SalesRecap: View {
         }
         return timeOfDay
     }
-    
 }
+
 
 #Preview {
     SalesRecap()
