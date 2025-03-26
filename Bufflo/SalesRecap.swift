@@ -12,6 +12,10 @@ struct SalesRecap: View {
     @State private var totalIncome: Int = 12000000
     @State private var todayIncome: Int = 1000000
     @State private var todaySales: Int = 16
+    @State private var timeRange: String = "Today"
+    
+    private var timeRanges = ["Today", "This Week", "This Month"]
+    
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading) {
@@ -50,7 +54,13 @@ struct SalesRecap: View {
                     }.padding(.horizontal, 38)
                     
                 }
-//                UISegmentedControl(frame: <#T##CGRect#>)
+                Picker("Time Range", selection: $timeRange) {
+                    ForEach(timeRanges, id: \.self) {
+                        Text($0)
+                    }
+                }
+                .padding(.horizontal, 20)
+                .pickerStyle(.segmented)
                 Spacer()
                 //fill here
             }
