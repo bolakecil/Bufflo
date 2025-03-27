@@ -1,17 +1,10 @@
-//
-//  Button.swift
-//  Bufflo
-//
-//  Created by Theodora Stefani Handojo on 26/03/25.
-//
-
 import SwiftUI
 
 struct ButtonView: View {
-    private var colorPicker : String = "SandPicker"
-    private var colorMenu : String = "Sand"
-    private var menu : String = "Nasi"
-    private var price = 8000
+    let colorMenu : String
+    let colorPicker : String
+    let menu : String
+    let price : Int
     @State private var sum = 0
     var body: some View {
         ZStack{
@@ -66,5 +59,5 @@ struct ButtonView: View {
 }
 
 #Preview {
-    ButtonView()
+    ButtonView(colorMenu: "Sand", colorPicker: "SandPicker", menu: "Nasi", price: 5000)
 }
