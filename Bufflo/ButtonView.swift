@@ -1,22 +1,20 @@
 import SwiftUI
 
 struct ButtonView: View {
-    let colorMenu : String
-    let colorPicker : String
-    let menu : String
-    let price : Int
-    @State private var sum = 0
+    let item: MenuItem
+    @Binding var qty: Int
+    
     var body: some View {
         ZStack{
             RoundedRectangle(cornerRadius: 13)
                 .frame (width: 150, height: 165)
-                .foregroundColor (Color(colorMenu))
+                .foregroundColor (Color(item.colorMenu))
             VStack{
-                Image(menu)
+                Image(item.name)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 65, height: 65)
-                Text ("Rp \(price)")
+                Text ("Rp \(item.price)")
                     .padding(.top,5)
                     .padding(.bottom,-2)
                     .foregroundStyle(.white)
@@ -25,7 +23,7 @@ struct ButtonView: View {
                 ZStack{
                     RoundedRectangle(cornerRadius: 12)
                     .frame (width: 120, height: 30)
-                    .foregroundColor(Color(colorPicker))
+                    .foregroundColor(Color(item.colorPicker))
                     HStack{
                         Button(action: decreaseSum){
                             Text("-")
@@ -34,10 +32,10 @@ struct ButtonView: View {
                                 .padding(.bottom, 2)
                                 .font(.system(size: 21, weight: .bold))
                         }
-                        Text("\(sum)")
+                        Text("\(qty)")
                             .foregroundStyle(.white)
                         Button(action:{
-                            sum = sum + 1
+                            qty = qty + 1
                         }){
                             Text("+")
                                 .foregroundStyle(.white)
@@ -52,12 +50,8 @@ struct ButtonView: View {
         }
     }
     func decreaseSum(){
-        if (sum > 0){
-            sum = sum - 1
+        if (qty > 0){
+            qty = qty - 1
         }
     }
-}
-
-#Preview {
-    ButtonView(colorMenu: "Sand", colorPicker: "SandPicker", menu: "Nasi", price: 5000)
 }

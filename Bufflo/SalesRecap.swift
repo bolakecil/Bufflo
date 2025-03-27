@@ -81,7 +81,6 @@ struct SalesRecap: View {
             }
             .navigationTitle("Good \(timeOfDay)")
             
-            
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleTextColor(.darkBlue)
