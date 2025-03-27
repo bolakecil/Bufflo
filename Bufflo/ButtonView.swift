@@ -56,7 +56,6 @@ struct ButtonView: View {
                 }
             }
             .padding(.vertical)
-            
         }
     }
     func decreaseSum(){
