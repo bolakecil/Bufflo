@@ -1,9 +1,3 @@
-//
-//  SalesRecap.swift
-//  Bufflo
-//
-//  Created by Jessica Lynn on 24/03/25.
-//
 
 import SwiftUI
 import UIKit
@@ -23,7 +17,7 @@ struct SalesRecap: View {
             VStack(alignment: .leading) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 20)
-                        .foregroundColor(.lightBlue)
+                        .foregroundColor(.blueHome)
                         .padding(20)
                         .frame(height: 210)
                     VStack(alignment: .leading, spacing: 10) {
@@ -70,13 +64,27 @@ struct SalesRecap: View {
                 }
                 .padding(.horizontal, 20)
                 .pickerStyle(.segmented)
+                .tint(.darkBlue)
+                Group {
+                    if timeRange == "Today" {
+                        TodaySales()
+                            .padding(.leading, 20)
+                    } else if timeRange == "This Week" {
+                        ThisWeekSales()
+                            .padding(.leading, 20)
+                    } else if timeRange == "This Month" {
+                        ThisMonthSales()
+                            .padding(.leading, 20)
+                    }
+                }
                 Spacer()
-                //fill here
             }
-            .navigationTitle("Good \(timeOfDay)").foregroundColor(.darkBlue)
+            .navigationTitle("Good \(timeOfDay)")
+            
             
         }
         .navigationBarBackButtonHidden(true)
+        .navigationBarTitleTextColor(.darkBlue)
         .onAppear {
             timeOfDay = updateTimeOfDay()
         }
