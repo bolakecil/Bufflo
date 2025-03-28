@@ -29,8 +29,8 @@ struct SalesRecapVerify: View {
                     }
                     .alert(isPresented: $showAlert){
                         Alert(
-                                    title: Text("Wrong PIN")
-                                )
+                            title: Text("Wrong PIN")
+                        )
                     }
                 }
             }
