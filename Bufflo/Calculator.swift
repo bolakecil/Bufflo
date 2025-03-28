@@ -65,7 +65,7 @@ struct Calculator: View {
             ) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 20)
-                        .foregroundStyle(.blueHome)
+                        .foregroundStyle(.blue)
                         .frame(width: 200, height: 45)
                     Text("Confirm")
                         .font(.system(size: 19, weight: .bold, design: .default))
