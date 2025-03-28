@@ -23,7 +23,7 @@ struct SalesRecap: View {
             VStack(alignment: .leading) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 20)
-                        .foregroundColor(.lightBlue)
+                        .foregroundColor(.blueHome)
                         .padding(20)
                         .frame(height: 210)
                     VStack(alignment: .leading, spacing: 10) {
@@ -70,8 +70,11 @@ struct SalesRecap: View {
                 }
                 .padding(.horizontal, 20)
                 .pickerStyle(.segmented)
+                SalesRecapItem()
                 Spacer()
                 //fill here
+                
+                
             }
             .navigationTitle("Good \(timeOfDay)").foregroundColor(.darkBlue)
             
