@@ -27,9 +27,9 @@ struct SalesRecapItem: View {
     var body: some View {
         VStack {
             // Divider
-            RoundedRectangle(cornerRadius: 100)
-                .fill(Color.gray.opacity(0.5))
-                .frame(width: 320, height: 1)
+//            RoundedRectangle(cornerRadius: 100)
+//                .fill(Color.gray.opacity(0.5))
+//                .frame(width: 320, height: 1)
             
             // Item Recap
             HStack {
@@ -59,8 +59,12 @@ struct SalesRecapItem: View {
                 }
                 .padding(3)
             }
-            .padding()
+            .padding(20)
             .frame(height: 100)
+            // Divider
+            RoundedRectangle(cornerRadius: 100)
+                .fill(Color.gray.opacity(0.5))
+                .frame(width: 320, height: 1)
         }
     }
 }
