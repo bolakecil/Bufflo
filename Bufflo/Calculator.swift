@@ -10,13 +10,14 @@ struct MenuItem {
 
 struct Calculator: View {
     let rows = [GridItem(.fixed(2)), GridItem(.fixed(2))] //idk why this is 2
+    @State private var navigate: Bool = false
     @State private var orderQuantities: [String: Int] = [:] //this is called a dictionary
     let nasi = MenuItem(name: "Nasi", price: 8000, colorMenu: "Sand", colorPicker: "SandPicker")
     let ayam = MenuItem(name: "Ayam", price: 11000, colorMenu: "Red", colorPicker: "RedPicker")
     let ikan = MenuItem(name: "Ikan", price: 10000, colorMenu: "Blue", colorPicker: "BluePicker")
     let telor = MenuItem(name: "Telor", price: 9000, colorMenu: "Yellow", colorPicker: "YellowPicker")
     let sayur = MenuItem(name: "Sayur", price: 5000, colorMenu: "Green", colorPicker: "GreenPicker")
-    var totalPrice: Int = 0
+    
     
     var body: some View {
         NavigationStack {
@@ -32,7 +33,14 @@ struct Calculator: View {
                     }
                     GridRow {
                         ButtonView(item: sayur, qty: binding(for: "Sayur"))
-                        LainnyaButton()
+                        Button {
+                            navigate = true
+                        } label: {
+                            LainnyaButton()
+                        }
+                        NavigationLink(destination: OtherMenu(), isActive: $navigate) {
+                            EmptyView()
+                        }
                     }
                 }
                 .padding(.top, 12)

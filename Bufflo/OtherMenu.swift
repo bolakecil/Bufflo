@@ -1,10 +1,3 @@
-//
-//  OtherMenu.swift
-//  Bufflo
-//
-//  Created by Muhammad Azmi on 27/03/25.
-//
-
 import SwiftUI
 
 struct OtherMenu: View {
@@ -32,19 +25,15 @@ struct OtherMenu: View {
                         }
                     }
                 }
-                
-                // Confirm Button
                 Button {
                     
                 } label: {
                     ZStack {
-                        Rectangle()
+                        RoundedRectangle(cornerRadius: 20)
                             .foregroundStyle(Color.blue)
-                            .frame(height: 50)
-                            .cornerRadius(100)
+                            .frame(width: 300, height: 50)
                         Text("Confirm")
-                            .font(.headline)
-                            .fontWeight(.bold)
+                            .font(.system(size: 19, weight: .bold))
                             .foregroundColor(.white)
                     }
                 }
@@ -53,18 +42,6 @@ struct OtherMenu: View {
                 .shadow(radius: 5)
             }
             .navigationTitle("Other Menu")
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        // Add back navigation action
-                    } label: {
-                        HStack {
-                            Image(systemName: "chevron.left")
-                            Text("Back")
-                        }
-                    }
-                }
-            }
         }
     }
 }

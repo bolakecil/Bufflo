@@ -6,13 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		1792F8612D9406C500683B7E /* SalesRecapItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1792F8602D9406C500683B7E /* SalesRecapItem.swift */; };
-		17DF17392D954300006BE2BA /* LabeledStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DF17382D954300006BE2BA /* LabeledStepper.swift */; };
-		17DF173B2D9543E7006BE2BA /* Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DF173A2D9543E7006BE2BA /* Style.swift */; };
-		17F5E5B12D9530D7003F8CF1 /* OtherMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17F5E5B02D9530D7003F8CF1 /* OtherMenu.swift */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXContainerItemProxy section */
 		8F1C5F8A2D90F7AB0048D481 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -31,10 +24,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1792F8602D9406C500683B7E /* SalesRecapItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesRecapItem.swift; sourceTree = "<group>"; };
-		17DF17382D954300006BE2BA /* LabeledStepper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabeledStepper.swift; sourceTree = "<group>"; };
-		17DF173A2D9543E7006BE2BA /* Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Style.swift; sourceTree = "<group>"; };
-		17F5E5B02D9530D7003F8CF1 /* OtherMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherMenu.swift; sourceTree = "<group>"; };
 		8F1C5F772D90F7AA0048D481 /* Bufflo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bufflo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F1C5F892D90F7AB0048D481 /* BuffloTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BuffloTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F1C5F932D90F7AB0048D481 /* BuffloUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BuffloUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -86,10 +75,6 @@
 		8F1C5F6E2D90F7AA0048D481 = {
 			isa = PBXGroup;
 			children = (
-				1792F8602D9406C500683B7E /* SalesRecapItem.swift */,
-				17F5E5B02D9530D7003F8CF1 /* OtherMenu.swift */,
-				17DF17382D954300006BE2BA /* LabeledStepper.swift */,
-				17DF173A2D9543E7006BE2BA /* Style.swift */,
 				8F1C5F792D90F7AA0048D481 /* Bufflo */,
 				8F1C5F8C2D90F7AB0048D481 /* BuffloTests */,
 				8F1C5F962D90F7AB0048D481 /* BuffloUITests */,
@@ -251,10 +236,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1792F8612D9406C500683B7E /* SalesRecapItem.swift in Sources */,
-				17F5E5B12D9530D7003F8CF1 /* OtherMenu.swift in Sources */,
-				17DF17392D954300006BE2BA /* LabeledStepper.swift in Sources */,
-				17DF173B2D9543E7006BE2BA /* Style.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
