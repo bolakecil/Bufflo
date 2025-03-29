@@ -1,14 +1,14 @@
 import SwiftUI
 
 struct OtherMenu: View {
-    @State private var items = [
-        Item(name: "Tahu", count: 0),
-        Item(name: "Tempe", count: 0),
-        Item(name: "Bala-Bala", count: 0),
-        Item(name: "Bihun Goreng", count: 0),
-        Item(name: "Mie Goreng", count: 0),
-        Item(name: "Bakso", count: 0),
-        Item(name: "Rolade", count: 0),
+    @State var items = [
+        Item(name: "Tahu", price: 3000, count: 0),
+        Item(name: "Tempe", price: 3000, count: 0),
+        Item(name: "Bala-Bala", price: 2000, count: 0),
+        Item(name: "Bihun Goreng", price: 5000, count: 0),
+        Item(name: "Mie Goreng", price: 5000, count: 0),
+        Item(name: "Bakso", price: 3500, count: 0),
+        Item(name: "Rolade", price: 4000, count: 0),
     ]
 
     var body: some View {
@@ -50,6 +50,7 @@ struct OtherMenu: View {
 struct Item: Identifiable {
     let id = UUID()
     let name: String
+    let price: Int
     var count: Int
 }
 
@@ -79,7 +80,6 @@ struct CustomStepper: View {
                 Text("\(value)")
                     .frame(width: 40)
                     .multilineTextAlignment(.center)
-
                 Button(action: {
                     if let maxValue = maxValue {
                         value = min(maxValue, value + 1)
@@ -97,6 +97,11 @@ struct CustomStepper: View {
             .padding(.vertical, 4)
         }
         .frame(width: 120, height: 40)
+        //assign value dari stepper ke nilai var, bikin binding
+        //send instance ke calculator buat dihitung
+//        func sendValue() -> {
+//            
+//        }
     }
 }
 
