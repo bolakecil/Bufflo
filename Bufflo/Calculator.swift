@@ -17,6 +17,17 @@ struct Calculator: View {
     let ikan = MenuItem(name: "Ikan", price: 10000, colorMenu: "Blue", colorPicker: "BluePicker")
     let telor = MenuItem(name: "Telor", price: 9000, colorMenu: "Yellow", colorPicker: "YellowPicker")
     let sayur = MenuItem(name: "Sayur", price: 5000, colorMenu: "Green", colorPicker: "GreenPicker")
+    var total: Int = 0
+    @State var additionalItems: [Item] = [
+        Item(name: "Tahu", price: 3000, count: 0),
+        Item(name: "Tempe", price: 3000, count: 0),
+        Item(name: "Bala-Bala", price: 2000, count: 0),
+        Item(name: "Bihun Goreng", price: 5000, count: 0),
+        Item(name: "Mie Goreng", price: 5000, count: 0),
+        Item(name: "Bakso", price: 3500, count: 0),
+        Item(name: "Rolade", price: 4000, count: 0),
+    ]
+
     
     
     var body: some View {
@@ -38,9 +49,17 @@ struct Calculator: View {
                         } label: {
                             LainnyaButton()
                         }
-                        NavigationLink(destination: OtherMenu(), isActive: $navigate) {
-                            EmptyView()
-                        }
+                        NavigationLink(
+                            isActive: $navigate,
+                            destination: {
+                                OtherMenu(items: $additionalItems)
+                            },
+                            label: {
+                                EmptyView()
+                            }
+                        )
+
+
                     }
                 }
                 .padding(.top, 12)
@@ -86,6 +105,12 @@ struct Calculator: View {
     }
     //help wtf
     //gpt said it manually tells compiler abt binding bcs swift cant figure out type from nested expression (inside GridRow)
+    
+    func countAdditionalTotal() -> Int {
+        additionalItems.reduce(0) { total, item in
+            total + (item.price * item.count)
+        }
+    }
 
     func countTotalPrice() -> Int {
         let nasiTotal = orderQuantities["Nasi", default: 0] * nasi.price
@@ -93,9 +118,10 @@ struct Calculator: View {
         let ikanTotal = orderQuantities["Ikan", default: 0] * ikan.price
         let telorTotal = orderQuantities["Telor", default: 0] * telor.price
         let sayurTotal = orderQuantities["Sayur", default: 0] * sayur.price
-
-        return nasiTotal + ayamTotal + ikanTotal + telorTotal + sayurTotal
+        let additionalTotal = countAdditionalTotal()
+        return nasiTotal + ayamTotal + ikanTotal + telorTotal + sayurTotal + additionalTotal
     } //ya ini manual, im tired
+    
     
     
     
