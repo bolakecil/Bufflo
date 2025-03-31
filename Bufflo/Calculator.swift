@@ -12,6 +12,7 @@ struct Calculator: View {
     let rows = [GridItem(.fixed(2)), GridItem(.fixed(2))] //idk why this is 2
     @State private var navigate: Bool = false
     @State private var orderQuantities: [String: Int] = [:] //this is called a dictionary
+    @State private var showSummarySheet: Bool = false
     let nasi = MenuItem(name: "Nasi", price: 8000, colorMenu: "Sand", colorPicker: "SandPicker")
     let ayam = MenuItem(name: "Ayam", price: 11000, colorMenu: "Red", colorPicker: "RedPicker")
     let ikan = MenuItem(name: "Ikan", price: 10000, colorMenu: "Blue", colorPicker: "BluePicker")
@@ -79,8 +80,10 @@ struct Calculator: View {
                     .font(.system(size: 32, weight: .bold, design: .default))
             }
             .padding(.horizontal, 50)
-            Button(action: {countTotalPrice()}
-                   //nnti hrus pop up action sheet buat summary
+            Button(
+                action: {
+                    showSummarySheet = true
+                }
             ) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 20)
@@ -95,8 +98,64 @@ struct Calculator: View {
 
             Spacer()
         }
+        .sheet(isPresented: $showSummarySheet) {
+            VStack() {
+                Text("Order Summary")
+                    .font(.system(size: 28, weight: .bold, design: .default))
+                    .padding(.bottom, 20)
+                ForEach([nasi, ayam, ikan, telor, sayur], id: \.name) { item in
+                    let qty = orderQuantities[item.name, default: 0]
+                    if qty > 0 {
+                        HStack {
+                            Text("\(item.name) x\(qty)")
+                                .font(.system(size: 22, weight: .regular, design: .default))
+                            Spacer()
+                            Text("Rp \(item.price * qty)")
+                                .font(.system(size: 22, weight: .regular, design: .default))
+                        }
+                        .padding(.vertical, 3)
+                    }
+                }
+                
+                ForEach(additionalItems.filter{$0.count > 0}) { item in
+                    HStack {
+                        Text("\(item.name) x\(item.count)")
+                            .font(.system(size: 22, weight: .regular, design: .default))
+                        Spacer()
+                        Text("Rp \(item.price * item.count)")
+                            .font(.system(size: 22, weight: .regular, design: .default))
+                    }
+                    .padding(.vertical, 5)
+                }
+                
+                Divider().padding(.vertical, 3)
+                HStack {
+                    Text("Total")
+                        .font(.system(size: 18, weight: .medium, design: .default))
+                    Spacer()
+                    Text("Rp \(countTotalPrice() + countAdditionalTotal())")
+                        .font(.system(size: 23, weight: .bold, design: .default))
+                }
+                Spacer()
+                Button(action: {
+                    resetOrder()
+                    showSummarySheet = false
+                }) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 20)
+                            .foregroundStyle(.blue)
+                            .frame(width: 200, height: 45)
+                        Text("Confirm")
+                            .font(.system(size: 19, weight: .bold, design: .default))
+                            .foregroundColor(.white)
+                    }
+                }
+                .padding(.top, 10)
+            }
+            .padding(.top, 30)
+            .padding(.horizontal, 50)
+        }
     }
-    
     func binding(for key: String) -> Binding<Int> {
         return Binding(
             get: { orderQuantities[key, default: 0] },
@@ -122,7 +181,13 @@ struct Calculator: View {
         return nasiTotal + ayamTotal + ikanTotal + telorTotal + sayurTotal + additionalTotal
     } //ya ini manual, im tired
     
-    
+    func resetOrder() -> Void {
+        orderQuantities = [:] //reset regular
+        for index in additionalItems.indices {
+            additionalItems[index].count = 0
+        } //according to gpt, swiftui allows modifying items in struct using .indices
+        
+    }
     
     
 }

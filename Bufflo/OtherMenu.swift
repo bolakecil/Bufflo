@@ -17,22 +17,6 @@ struct OtherMenu: View {
                         }
                     }
                 }
-//                Button {
-//                    
-//                } label: {
-//                    ZStack {
-//                        RoundedRectangle(cornerRadius: 20)
-//                            .foregroundStyle(Color.blue)
-//                            .frame(width: 300, height: 50)
-//                        Text("Confirm")
-//                            .font(.system(size: 19, weight: .bold))
-//                            .foregroundColor(.white)
-//                    }
-//                }
-//                .padding()
-//                .padding(.bottom, 50)
-//                .shadow(radius: 5)
-                
             }
             .navigationTitle("Other Menu")
         }
