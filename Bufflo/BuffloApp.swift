@@ -6,5 +6,6 @@ struct BuffloApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: [Order.self, OrderItem.self])
     }
 }
