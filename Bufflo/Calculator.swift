@@ -29,7 +29,7 @@ struct Calculator: View {
         Item(name: "Rolade", price: 4000, count: 0),
     ]
 
-    
+    @Environment(\.modelContext) private var modelContext
     
     var body: some View {
         NavigationStack {
@@ -99,61 +99,17 @@ struct Calculator: View {
             Spacer()
         }
         .sheet(isPresented: $showSummarySheet) {
-            VStack() {
-                Text("Order Summary")
-                    .font(.system(size: 28, weight: .bold, design: .default))
-                    .padding(.bottom, 20)
-                ForEach([nasi, ayam, ikan, telor, sayur], id: \.name) { item in
-                    let qty = orderQuantities[item.name, default: 0]
-                    if qty > 0 {
-                        HStack {
-                            Text("\(item.name) x\(qty)")
-                                .font(.system(size: 22, weight: .regular, design: .default))
-                            Spacer()
-                            Text("Rp \(item.price * qty)")
-                                .font(.system(size: 22, weight: .regular, design: .default))
-                        }
-                        .padding(.vertical, 3)
-                    }
-                }
-                
-                ForEach(additionalItems.filter{$0.count > 0}) { item in
-                    HStack {
-                        Text("\(item.name) x\(item.count)")
-                            .font(.system(size: 22, weight: .regular, design: .default))
-                        Spacer()
-                        Text("Rp \(item.price * item.count)")
-                            .font(.system(size: 22, weight: .regular, design: .default))
-                    }
-                    .padding(.vertical, 5)
-                }
-                
-                Divider().padding(.vertical, 3)
-                HStack {
-                    Text("Total")
-                        .font(.system(size: 18, weight: .medium, design: .default))
-                    Spacer()
-                    Text("Rp \(countTotalPrice() + countAdditionalTotal())")
-                        .font(.system(size: 23, weight: .bold, design: .default))
-                }
-                Spacer()
-                Button(action: {
+            SalesSummarySheet(
+                orderQuantities: orderQuantities,
+                additionalItems: additionalItems,
+                onConfirm: {
+                    print("Tapped confirm")
+                    saveOrder()
                     resetOrder()
                     showSummarySheet = false
-                }) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20)
-                            .foregroundStyle(.blue)
-                            .frame(width: 200, height: 45)
-                        Text("Confirm")
-                            .font(.system(size: 19, weight: .bold, design: .default))
-                            .foregroundColor(.white)
-                    }
                 }
-                .padding(.top, 10)
-            }
-            .padding(.top, 30)
-            .padding(.horizontal, 50)
+            )
+            .environment(\.modelContext, modelContext)
         }
     }
     func binding(for key: String) -> Binding<Int> {
@@ -180,6 +136,32 @@ struct Calculator: View {
         let additionalTotal = countAdditionalTotal()
         return nasiTotal + ayamTotal + ikanTotal + telorTotal + sayurTotal + additionalTotal
     } //ya ini manual, im tired
+    
+    func saveOrder() -> Void {
+        var orderItems: [OrderItem] = []
+        
+        //regular item
+        for menu in [nasi, ayam, ikan, telor, sayur] {
+            let qty = orderQuantities[menu.name, default: 0]
+            if qty > 0 {
+                orderItems.append(OrderItem(name: menu.name, price: menu.price, quantity: qty))
+            }
+        }
+        //additional
+        for item in additionalItems where item.count > 0 {
+            orderItems.append(OrderItem(name: item.name, price: item.price, quantity: item.count))
+        }
+        
+        let order = Order(items: orderItems)
+        modelContext.insert(order)
+        
+        do {
+            try modelContext.save()
+            print( "Order saved successfully!" )
+        } catch {
+            print("Failed to save order: \(error)")
+        }
+    }
     
     func resetOrder() -> Void {
         orderQuantities = [:] //reset regular
