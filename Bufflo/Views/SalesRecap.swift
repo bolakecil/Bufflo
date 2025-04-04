@@ -63,7 +63,9 @@ struct SalesRecap: View {
                 ZStack {
                     RoundedRectangle(cornerRadius: 20)
                         .foregroundColor(.blueHome)
-                        .padding(20)
+                        .padding(.top, 10)
+                        .padding(.bottom, 20)
+                        .padding(.horizontal, 20)
                         .frame(height: 210)
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {

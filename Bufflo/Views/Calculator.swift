@@ -65,52 +65,52 @@ struct Calculator: View {
                     }
                 }
                 .padding(.top, 12)
+                RoundedRectangle(cornerRadius: 5)
+                    .fill(Color.gray)
+                    .frame(width: 300, height: 3)
+                    .padding(.top, 10)
+                HStack() {
+                    Text("Total")
+                        .font(.system(size: 22, weight: .none, design: .default))
+                    Spacer()
+                    Text("Rp \(countTotalPrice())")
+                        .font(.system(size: 32, weight: .bold, design: .default))
+                }
+                .padding(.horizontal, 50)
+                Button(
+                    action: {
+                        showSummarySheet = true
+                    }
+                ) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 20)
+                            .foregroundStyle(.blue)
+                            .frame(width: 200, height: 45)
+                        Text("Confirm")
+                            .font(.system(size: 19, weight: .bold, design: .default))
+                            .foregroundColor(.white)
+                    }
+                    .padding(.top, -5)
+                }
+
+                Spacer()
             }
             .navigationTitle(Text("Calculator"))
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarTitleTextColor(.darkBlue)
-            RoundedRectangle(cornerRadius: 5)
-                .fill(Color.gray)
-                .frame(width: 300, height: 3)
-                .padding(.top, 10)
-            HStack() {
-                Text("Total")
-                    .font(.system(size: 22, weight: .none, design: .default))
-                Spacer()
-                Text("Rp \(countTotalPrice())")
-                    .font(.system(size: 32, weight: .bold, design: .default))
+            .sheet(isPresented: $showSummarySheet) {
+                SalesSummarySheet(
+                    orderQuantities: orderQuantities,
+                    additionalItems: additionalItems,
+                    onConfirm: {
+                        print("Tapped confirm")
+                        saveOrder()
+                        resetOrder()
+                        showSummarySheet = false
+                    }
+                )
+                .environment(\.modelContext, modelContext)
             }
-            .padding(.horizontal, 50)
-            Button(
-                action: {
-                    showSummarySheet = true
-                }
-            ) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 20)
-                        .foregroundStyle(.blue)
-                        .frame(width: 200, height: 45)
-                    Text("Confirm")
-                        .font(.system(size: 19, weight: .bold, design: .default))
-                        .foregroundColor(.white)
-                }
-                .padding(.top, -5)
-            }
-
-            Spacer()
-        }
-        .sheet(isPresented: $showSummarySheet) {
-            SalesSummarySheet(
-                orderQuantities: orderQuantities,
-                additionalItems: additionalItems,
-                onConfirm: {
-                    print("Tapped confirm")
-                    saveOrder()
-                    resetOrder()
-                    showSummarySheet = false
-                }
-            )
-            .environment(\.modelContext, modelContext)
         }
     }
     func binding(for key: String) -> Binding<Int> {
