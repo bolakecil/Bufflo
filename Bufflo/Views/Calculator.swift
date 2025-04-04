@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import Foundation
 
 struct MenuItem {
     let name: String

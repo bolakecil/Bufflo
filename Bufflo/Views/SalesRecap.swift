@@ -4,16 +4,45 @@ import SwiftData
 
 @Query(sort: \Order.date, order: .reverse) private var allOrders: [Order]
 
+
 struct SalesRecap: View {
-    @State private var timeOfDay: String = "Morning"
-    @State private var totalIncome: Int = 12000000
-    @State private var todayIncome: Int = 1000000
-    @State private var todaySales: Int = 16
-    @State private var timeRange: String = "Today"
+    @Query(sort: \Order.date, order: .reverse) private var allOrders: [Order]
+    @State private var timeOfDay: String = "Morning" // UI State
+    @State private var timeRange: String = "Today" // UI State (for picker)
+    private var timeRanges = ["Today", "This Week", "This Month"] // Config
+
+    private var calculatedTotalIncomeThisMonth: Int {
+        let calendar = Calendar.current
+        let now = Date()
+        guard let monthAgo = calendar.date(byAdding: .month, value: -1, to: now) else { return 0 }
+
+        return allOrders
+            .filter { $0.date >= monthAgo } // Filter for this month
+            .reduce(0) { total, order in // Sum totals
+                total + order.items.reduce(0) { $0 + ($1.price * $1.quantity) }
+            }
+    }
+
+    private var calculatedTodayIncome: Int {
+        let calendar = Calendar.current
+        return allOrders
+            .filter { calendar.isDateInToday($0.date) } // Filter for today
+            .reduce(0) { total, order in // Sum totals
+                total + order.items.reduce(0) { $0 + ($1.price * $1.quantity) }
+            }
+    }
+
+    private var calculatedTodaySalesCount: Int {
+        let calendar = Calendar.current
+        return allOrders
+            .filter { calendar.isDateInToday($0.date) } // Filter for today
+            .count // Count the orders
+    }
+    
     var filteredOrders: [Order] {
         let calendar = Calendar.current
         let now = Date()
-        
+
         switch timeRange {
             case "Today":
                 return allOrders.filter { calendar.isDateInToday($0.date) }
@@ -27,10 +56,7 @@ struct SalesRecap: View {
                 return allOrders
             }
     }
-    
-    
-    private var timeRanges = ["Today", "This Week", "This Month"]
-    
+
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading) {
@@ -46,7 +72,8 @@ struct SalesRecap: View {
                                 .foregroundColor(.white)
                             Spacer()
                         }
-                        Text("Rp \(totalIncome)") //double?
+                        
+                        Text("Rp \(calculatedTotalIncomeThisMonth)")
                             .font(.system(size: 33, weight: .bold, design: .default))
                             .foregroundColor(.white)
                         VStack{
@@ -61,20 +88,20 @@ struct SalesRecap: View {
                             }
                             HStack{
                                 HStack {
-                                    Text("Rp \(todayIncome)")
+                                    Text("Rp \(calculatedTodayIncome)")
                                         .font(.system(size: 17, weight: .bold, design: .default))
                                         .foregroundColor(.white)
                                     Image(systemName: "arrowtriangle.up.fill")
                                         .foregroundColor(.green)
                                 }
                                 Spacer()
-                                Text("\(todaySales)")
+                                Text("\(calculatedTodaySalesCount)")
                                     .font(.system(size: 17, weight: .bold, design: .default))
                                     .foregroundColor(.white)
                             }
                         }
                     }.padding(.horizontal, 38)
-                    
+
                 }
                 Picker("Time Range", selection: $timeRange) {
                     ForEach(timeRanges, id: \.self) {
@@ -83,49 +110,47 @@ struct SalesRecap: View {
                 }
                 .padding(.horizontal, 20)
                 .pickerStyle(.segmented)
-                .tint(.darkBlue)
+
                 ScrollView{
                     VStack(alignment: .leading, spacing: 10){
                         ForEach(filteredOrders){ order in
                             Sales(
                                 items: convertOrderItemsToDishDisplayItems(order.items),
                                 total: order.items.reduce(0) { $0 + $1.price * $1.quantity },
-                                time: order.date)
-                            
+                                time: order.date
+                            )
+                            .padding(.horizontal)
                         }
                     }
                 }
                 Spacer()
             }
             .navigationTitle("Good \(timeOfDay)")
-            
-        }
-        .navigationBarBackButtonHidden(true)
-        .navigationBarTitleTextColor(.darkBlue)
-        .onAppear {
-            timeOfDay = updateTimeOfDay()
-            print("Orders fetched: \(allOrders.count)")
-        }
+            .navigationBarBackButtonHidden(true)
+            // .navigationBarTitleTextColor(.darkBlue)
+            .onAppear {
+                timeOfDay = updateTimeOfDay()
+                print("Orders fetched: \(allOrders.count)")
+            }
 
+        }
     }
-    
-    
     
     func updateTimeOfDay() -> String {
         let calendar = Calendar.current
         let components = calendar.dateComponents([.hour], from: Date())
         let hour = components.hour ?? 0
-        
+
         if hour >= 0 && hour < 12 {
-            timeOfDay = "Morning"
+            return "Morning"
         } else if hour >= 12 && hour < 16 {
-            timeOfDay = "Afternoon"
+            return "Afternoon"
         } else {
-            timeOfDay = "Evening"
+            return "Evening"
         }
-        return timeOfDay
+        
     }
-    
+
     func convertOrderItemsToDishDisplayItems(_ orderItems: [OrderItem]) -> [DishDisplayItem] {
         var regulars: [DishDisplayItem] = []
         var additionalTotal = 0
@@ -159,12 +184,12 @@ struct SalesRecap: View {
         case "Ikan": return Color("Blue")
         case "Telor": return Color("Yellow")
         case "Sayur": return Color("Green")
-        default: return .purple
+        default: return .purple 
         }
     }
-
+    
+    
 }
-
 
 #Preview {
     SalesRecap()
