@@ -23,6 +23,7 @@ struct Sales: View {
             }
             .padding(.trailing, 20)
             let columns =  Array(repeating: GridItem(.flexible(), spacing: 6), count: 3)
+            Spacer()
             LazyVGrid(columns: columns, alignment: .leading, spacing: 6) {
                 ForEach(items.prefix(6)) { item in
                     HStack(spacing: 4) {

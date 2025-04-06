@@ -7,9 +7,9 @@ import SwiftData
 
 struct SalesRecap: View {
     @Query(sort: \Order.date, order: .reverse) private var allOrders: [Order]
-    @State private var timeOfDay: String = "Morning" // UI State
-    @State private var timeRange: String = "Today" // UI State (for picker)
-    private var timeRanges = ["Today", "This Week", "This Month"] // Config
+    @State private var timeOfDay: String = "Morning"
+    @State private var timeRange: String = "Today"
+    private var timeRanges = ["Today", "This Week", "This Month"]
 
     private var calculatedTotalIncomeThisMonth: Int {
         let calendar = Calendar.current
@@ -17,8 +17,8 @@ struct SalesRecap: View {
         guard let monthAgo = calendar.date(byAdding: .month, value: -1, to: now) else { return 0 }
 
         return allOrders
-            .filter { $0.date >= monthAgo } // Filter for this month
-            .reduce(0) { total, order in // Sum totals
+            .filter { $0.date >= monthAgo }
+            .reduce(0) { total, order in
                 total + order.items.reduce(0) { $0 + ($1.price * $1.quantity) }
             }
     }
@@ -26,8 +26,8 @@ struct SalesRecap: View {
     private var calculatedTodayIncome: Int {
         let calendar = Calendar.current
         return allOrders
-            .filter { calendar.isDateInToday($0.date) } // Filter for today
-            .reduce(0) { total, order in // Sum totals
+            .filter { calendar.isDateInToday($0.date) }
+            .reduce(0) { total, order in
                 total + order.items.reduce(0) { $0 + ($1.price * $1.quantity) }
             }
     }
@@ -35,8 +35,8 @@ struct SalesRecap: View {
     private var calculatedTodaySalesCount: Int {
         let calendar = Calendar.current
         return allOrders
-            .filter { calendar.isDateInToday($0.date) } // Filter for today
-            .count // Count the orders
+            .filter { calendar.isDateInToday($0.date) }
+            .count
     }
     
     var filteredOrders: [Order] {
@@ -89,13 +89,9 @@ struct SalesRecap: View {
                                     .foregroundColor(.white)
                             }
                             HStack{
-                                HStack {
-                                    Text("Rp \(calculatedTodayIncome)")
-                                        .font(.system(size: 17, weight: .bold, design: .default))
-                                        .foregroundColor(.white)
-                                    Image(systemName: "arrowtriangle.up.fill")
-                                        .foregroundColor(.green)
-                                }
+                                Text("Rp \(calculatedTodayIncome)")
+                                    .font(.system(size: 17, weight: .bold, design: .default))
+                                    .foregroundColor(.white)
                                 Spacer()
                                 Text("\(calculatedTodaySalesCount)")
                                     .font(.system(size: 17, weight: .bold, design: .default))
@@ -112,16 +108,24 @@ struct SalesRecap: View {
                 }
                 .padding(.horizontal, 20)
                 .pickerStyle(.segmented)
-
-                ScrollView{
-                    VStack(alignment: .leading, spacing: 10){
-                        ForEach(filteredOrders){ order in
-                            Sales(
-                                items: convertOrderItemsToDishDisplayItems(order.items),
-                                total: order.items.reduce(0) { $0 + $1.price * $1.quantity },
-                                time: order.date
-                            )
-                            .padding(.horizontal)
+                
+                if filteredOrders.isEmpty{
+                    Text("No Data")
+                        .font(.system(size: 22, weight: .medium, design: .default))
+                        .foregroundColor(.gray)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.top, 160)
+                } else {
+                    ScrollView{
+                        VStack(alignment: .leading, spacing: 10){
+                            ForEach(filteredOrders){ order in
+                                Sales(
+                                    items: convertOrderItemsToDishDisplayItems(order.items),
+                                    total: order.items.reduce(0) { $0 + $1.price * $1.quantity },
+                                    time: order.date
+                                )
+                                .padding(.horizontal)
+                            }
                         }
                     }
                 }
@@ -129,7 +133,6 @@ struct SalesRecap: View {
             }
             .navigationTitle("Good \(timeOfDay)")
             .navigationBarBackButtonHidden(true)
-            // .navigationBarTitleTextColor(.darkBlue)
             .onAppear {
                 timeOfDay = updateTimeOfDay()
                 print("Orders fetched: \(allOrders.count)")
