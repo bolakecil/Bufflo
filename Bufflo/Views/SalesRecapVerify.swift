@@ -9,8 +9,11 @@ struct SalesRecapVerify: View {
     var body: some View {
         NavigationStack{
             VStack{
+                Text("This screen is protected")
+                    .font(.headline)
+                    .foregroundColor(.gray)
                 SecureField("Enter PIN", text: $pin)
-                    .keyboardType(.numberPad)
+                    .keyboardType(.default)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding(.horizontal, 50)
 //                    .frame(width: 20, height: 20)
@@ -21,7 +24,7 @@ struct SalesRecapVerify: View {
             .toolbar{
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
-                        if pin ==  "8888"{
+                        if pin ==  "daganganlaku"{
                             onSuccess() //sets needVerification to false
                         } else {
                             showAlert=true
