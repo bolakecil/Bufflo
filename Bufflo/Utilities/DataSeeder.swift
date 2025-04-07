@@ -21,13 +21,13 @@ struct DataSeeder {
         print("🌱 Starting data seeding...")
 
         let calendar = Calendar.current
-        let endDateComponents = DateComponents(year: 2025, month: 4, day: 4, hour: 12) // April 4, 2025, noon
+        let endDateComponents = DateComponents(year: 2025, month: 4, day: 7, hour: 12) // April 4, 2025, noon
         guard let endDate = calendar.date(from: endDateComponents) else {
             print("❌ Error creating end date for seeding.")
             return
         }
         
-        guard let startDate = calendar.date(byAdding: .day, value: -31, to: endDate) else {
+        guard let startDate = calendar.date(byAdding: .day, value: -8, to: endDate) else {
             print("❌ Error creating start date for seeding.")
             return
         }

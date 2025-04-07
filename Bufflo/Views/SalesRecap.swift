@@ -39,6 +39,18 @@ struct SalesRecap: View {
             .count
     }
     
+    private var calculatedYesterdayIncome: Int {
+            guard let yesterday = SalesCalculator.yesterday() else { return 0 }
+            return SalesCalculator.calculateIncome(for: yesterday, orders: allOrders)
+    }
+    
+    private var incomeDifferenceFromYesterday: (sign: String, amount: Int) {
+            SalesCalculator.calculateIncomeDifferenceFromYesterday(
+                todayIncome: calculatedTodayIncome,
+                yesterdayIncome: calculatedYesterdayIncome
+            )
+    }
+    
     var filteredOrders: [Order] {
         let calendar = Calendar.current
         let now = Date()
@@ -89,9 +101,17 @@ struct SalesRecap: View {
                                     .foregroundColor(.white)
                             }
                             HStack{
-                                Text("Rp \(calculatedTodayIncome)")
-                                    .font(.system(size: 17, weight: .bold, design: .default))
-                                    .foregroundColor(.white)
+                                HStack{
+                                    Text("Rp \(calculatedTodayIncome)")
+                                        .font(.system(size: 17, weight: .bold, design: .default))
+                                        .foregroundColor(.white)
+                                    
+                                    if calculatedYesterdayIncome > 0 || calculatedTodayIncome > 0 {
+                                        Label("Rp \(incomeDifferenceFromYesterday.amount)", systemImage: "\(incomeDifferenceFromYesterday.sign)")
+                                            .font(.system(size: 14, weight: .medium, design: .default))
+                                            .foregroundColor(incomeDifferenceFromYesterday.sign == "chart.line.uptrend.xyaxis" ? .green.opacity(0.85) : .red.opacity(0.85))
+                                    }
+                                }
                                 Spacer()
                                 Text("\(calculatedTodaySalesCount)")
                                     .font(.system(size: 17, weight: .bold, design: .default))
