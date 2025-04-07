@@ -1,11 +1,4 @@
-//
-//  SharedModel.swift
-//  Bufflo
-//
-//  Created by Muhammad Azmi on 06/04/25.
-//
 
-// SharedModels.swift (or a new file like MenuItems.swift)
 import Foundation
 import SwiftUI // For Color if needed, but maybe not for seeding logic itself
 
