@@ -36,9 +36,43 @@ final class OrderItem {
 }
 */
 
+struct DailyGroup: Identifiable {
+    let id: Date // Using the start of the day Date as a stable ID
+    let date: Date // The specific day
+    var orders: [Order] // Orders for that day
+    
+    // Computed property to easily calculate total income for the day group
+    var totalIncome: Int {
+        orders.reduce(0) { $0 + SalesCalculator.orderTotal($1) }
+    }
+    // Computed property for sales count for the day group
+    var salesCount: Int {
+        orders.count
+    }
+}
+
 
 struct SalesCalculator {
 
+    static func groupOrdersByDay(orders: [Order]) -> [DailyGroup] {
+        let calendar = Calendar.current
+        
+        // Use Dictionary(grouping:by:) for efficient grouping
+        let groupedByDay = Dictionary(grouping: orders) { order -> Date in
+            // Normalize the date to the start of the day for consistent grouping
+            return calendar.startOfDay(for: order.date)
+        }
+
+        // Convert the dictionary into an array of DailyGroup structs
+        // and sort by date descending (most recent first)
+        let dailyGroups = groupedByDay.map { (date, ordersForDay) -> DailyGroup in
+            DailyGroup(id: date, date: date, orders: ordersForDay)
+        }.sorted { $0.date > $1.date } // Sort most recent day first
+
+        return dailyGroups
+    }
+    
+    
     /// Calculates the total income for a specific date from a list of orders.
     static func calculateIncome(for date: Date, orders: [Order]) -> Int {
         let calendar = Calendar.current
@@ -63,6 +97,9 @@ struct SalesCalculator {
             }
     }
     
+    
+    
+    
     /// Calculates the total income for the last 30 days.
     /// Kept if the original logic of "month ago" is preferred over "current calendar month".
     static func calculateIncomeLast30Days(orders: [Order]) -> Int {
@@ -82,14 +119,22 @@ struct SalesCalculator {
     static func calculateIncomeThisWeek(orders: [Order]) -> Int {
         let calendar = Calendar.current
         let now = Date()
-        guard let startOfWeek = calendar.date(byAdding: .weekOfYear, value: 0, to: now) else { return 0 }
-        
+        // Get the date interval (start and end) of the week containing 'now'
+        guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: now) else {
+            print("Error: Could not determine the current week interval.")
+            return 0 // Return 0 if we can't find the week interval
+        }
+        let startOfWeek = weekInterval.start // Get the actual start date of the week
+
         return orders
+            // Filter orders that fall on or after the start of this week
             .filter { $0.date >= startOfWeek }
+            // Optionally, you could add && $0.date < weekInterval.end if needed,
+            // but usually filtering from the start is sufficient for "this week".
             .reduce(0) { total, order in
                 total + orderTotal(order)
             }
-    }    
+    }
     
     /// Calculates the total sales count for a specific date.
     static func calculateSalesCount(for date: Date, orders: [Order]) -> Int {
@@ -109,6 +154,17 @@ struct SalesCalculator {
             return (sign: "chart.line.downtrend.xyaxis", amount: abs(difference))
         }
     }
+    
+    
+    /// Helper to get the start of the current calendar week
+    static func startOfCurrentWeek() -> Date? {
+        let calendar = Calendar.current
+        guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: Date()) else {
+            return nil
+        }
+        return weekInterval.start
+    }
+
 
     /// Calculates the total amount for a single order.
     static func orderTotal(_ order: Order) -> Int {
