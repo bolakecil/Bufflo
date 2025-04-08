@@ -7,6 +7,7 @@
 
 
 import Foundation
+import SwiftUI
 import SwiftData // If Order/OrderItem are defined here or needed
 
 // Assume Order and OrderItem look something like this (adjust if needed):
@@ -36,42 +37,100 @@ final class OrderItem {
 }
 */
 
+// MARK: - Struct untuk Grup Harian (Dimodifikasi)
 struct DailyGroup: Identifiable {
-    let id: Date // Using the start of the day Date as a stable ID
-    let date: Date // The specific day
-    var orders: [Order] // Orders for that day
-    
-    // Computed property to easily calculate total income for the day group
-    var totalIncome: Int {
-        orders.reduce(0) { $0 + SalesCalculator.orderTotal($1) }
-    }
-    // Computed property for sales count for the day group
-    var salesCount: Int {
-        orders.count
-    }
+    let id: Date // Start of day
+    let date: Date
+    var aggregatedItems: [DishDisplayItem] // Item yang sudah ditotal per hari
+    var totalIncome: Int // Total pendapatan hari itu
+    var salesCount: Int // Jumlah order hari itu
 }
-
 
 struct SalesCalculator {
 
-    static func groupOrdersByDay(orders: [Order]) -> [DailyGroup] {
-        let calendar = Calendar.current
+//    static func groupOrdersByDay(orders: [Order]) -> [DailyGroup] {
+//        let calendar = Calendar.current
+//        
+//        // Use Dictionary(grouping:by:) for efficient grouping
+//        let groupedByDay = Dictionary(grouping: orders) { order -> Date in
+//            // Normalize the date to the start of the day for consistent grouping
+//            return calendar.startOfDay(for: order.date)
+//        }
+//
+//        // Convert the dictionary into an array of DailyGroup structs
+//        // and sort by date descending (most recent first)
+//        let dailyGroups = groupedByDay.map { (date, ordersForDay) -> DailyGroup in
+//            DailyGroup(id: date, date: date, orders: ordersForDay)
+//        }.sorted { $0.date > $1.date } // Sort most recent day first
+//
+//        return dailyGroups
+//    }
         
-        // Use Dictionary(grouping:by:) for efficient grouping
-        let groupedByDay = Dictionary(grouping: orders) { order -> Date in
-            // Normalize the date to the start of the day for consistent grouping
-            return calendar.startOfDay(for: order.date)
-        }
+    static func colorForDish(name: String) -> Color {
+         switch name {
+             case "Nasi": return Color("Sand", default: .orange)
+             case "Ayam": return Color("Red", default: .red)
+             case "Ikan": return Color("Blue", default: .blue)
+             case "Telor": return Color("Yellow", default: .yellow)
+             case "Sayur": return Color("Green", default: .green)
+             case "Other": return .purple
+             default: return .gray
+         }
+     }
+    
+    /// Grup order per hari dan hitung total item per hari.
+       static func groupOrdersByDayAndAggregateItems(orders: [Order]) -> [DailyGroup] {
+           let calendar = Calendar.current
+           
+           let groupedByDay = Dictionary(grouping: orders) { order -> Date in
+               return calendar.startOfDay(for: order.date)
+           }
+           
+           let dailyAggregatedGroups = groupedByDay.map { (dayStartDate, ordersForDay) -> DailyGroup in
 
-        // Convert the dictionary into an array of DailyGroup structs
-        // and sort by date descending (most recent first)
-        let dailyGroups = groupedByDay.map { (date, ordersForDay) -> DailyGroup in
-            DailyGroup(id: date, date: date, orders: ordersForDay)
-        }.sorted { $0.date > $1.date } // Sort most recent day first
+               // Hitung total income dan sales count untuk hari ini
+               let dailyTotalIncome = ordersForDay.reduce(0) { $0 + orderTotal($1) }
+               let dailySalesCount = ordersForDay.count
 
-        return dailyGroups
+               // Agregasi item
+               var itemTotals = [String: DishDisplayItem]() // Key: Nama item
+
+               for order in ordersForDay {
+                   for item in order.items {
+                       let name = item.name
+                       let quantity = item.quantity
+                       let color = colorForDish(name: name)
+
+                       if var existingItem = itemTotals[name] {
+                           // klo item dah ada, count
+                           existingItem.count += quantity
+                           itemTotals[name] = existingItem
+                       } else {
+                           // klo item baru, tambahin ke dictionary
+                           itemTotals[name] = DishDisplayItem(name: name, count: quantity, color: color)
+                       }
+                   }
+               }
+
+               // Konversi dictionary kembali ke array dan urutkan
+               let aggregatedItemsArray = Array(itemTotals.values).sorted { $0.name < $1.name }
+
+               // Buat instance DailyGroup dengan item yg udah diagregasi
+               return DailyGroup(id: dayStartDate,
+                                 date: dayStartDate,
+                                 aggregatedItems: aggregatedItemsArray,
+                                 totalIncome: dailyTotalIncome,
+                                 salesCount: dailySalesCount)
+
+           }.sorted { $0.date > $1.date } // Urutkan grup berdasarkan hari (yg paling baru)
+
+       return dailyAggregatedGroups
     }
     
+    static func orderTotal(_ order: Order) -> Int {
+        order.items.reduce(0) { $0 + ($1.price * $1.quantity) }
+    }
+
     
     /// Calculates the total income for a specific date from a list of orders.
     static func calculateIncome(for date: Date, orders: [Order]) -> Int {
@@ -166,10 +225,10 @@ struct SalesCalculator {
     }
 
 
-    /// Calculates the total amount for a single order.
-    static func orderTotal(_ order: Order) -> Int {
-        order.items.reduce(0) { $0 + ($1.price * $1.quantity) }
-    }
+//    /// Calculates the total amount for a single order.
+//    static func orderTotal(_ order: Order) -> Int {
+//        order.items.reduce(0) { $0 + ($1.price * $1.quantity) }
+//    }
 
     /// Gets yesterday's date.
     static func yesterday() -> Date? {
@@ -178,3 +237,4 @@ struct SalesCalculator {
     
     
 }
+

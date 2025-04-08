@@ -45,9 +45,9 @@ struct SalesRecap: View {
         )
     }
     
-    // Groups all orders by day for the "Daily" view.
-    private var dailyGroupedOrders: [DailyGroup] {
-        SalesCalculator.groupOrdersByDay(orders: allOrders)
+    /// Grup order per hari dengan item yang udah diagregasi
+    private var dailyAggregatedGroups: [DailyGroup] {
+        SalesCalculator.groupOrdersByDayAndAggregateItems(orders: allOrders)
     }
     
     
@@ -64,9 +64,7 @@ struct SalesRecap: View {
             guard let startOfWeek = SalesCalculator.startOfCurrentWeek() else { return [] }
             return allOrders.filter { $0.date >= startOfWeek }
         case "Daily":
-            // For "Daily", we use `dailyGroupedOrders`, so this property isn't directly used for the list.
-            // Return an empty array or `allOrders` if needed for other logic, but the list uses the grouped data.
-            return [] // Or return allOrders if some other part depends on it, but the list won't use it like this.
+            return []
         default:
             return allOrders.filter { calendar.isDate($0.date, inSameDayAs: now) }
         }
@@ -78,11 +76,14 @@ struct SalesRecap: View {
         case "Today", "Weekly":
             return !filteredOrders.isEmpty
         case "Daily":
-            return !dailyGroupedOrders.isEmpty
+            return !dailyAggregatedGroups.isEmpty
         default:
             return false
         }
     }
+    
+    // Definisikan kolom grid di sini agar bisa dipakai di case "Daily"
+    let gridColumns = [GridItem(.adaptive(minimum: 80), spacing: 8)]
     
     // MARK: - Body
 
@@ -92,28 +93,25 @@ struct SalesRecap: View {
                 // MARK: Top Summary Card
                 ZStack {
                     RoundedRectangle(cornerRadius: 20)
-                        .foregroundColor(Color.blueHome) // Ensure .blueHome is defined
+                        .foregroundColor(Color.blueHome)
                         .padding(.top, 10)
                         .padding(.bottom, 20)
                         .padding(.horizontal, 20)
-                        .frame(height: 210) // Consider making height dynamic if content varies
+                        .frame(height: 210)
 
                     VStack(alignment: .leading, spacing: 10) {
-                        // Title changed to Weekly
                         HStack {
                             Text("Total Income This Week")
                                 .font(.system(size: 22, weight: .bold, design: .default))
                                 .foregroundColor(.white)
                             Spacer()
                         }
-                        
-                        // Value changed to calculatedWeeklyIncome
+                                                
                         Text("Rp \(calculatedWeeklyIncome)")
                             .font(.system(size: 33, weight: .bold, design: .default))
                             .foregroundColor(.white)
                             .padding(.bottom, 5)
-
-                        // Daily Summary (Today vs Yesterday) - Remains the same
+                        
                         VStack(spacing: 5){
                             HStack{
                                 Text("Today's Income")
@@ -132,10 +130,10 @@ struct SalesRecap: View {
                                     
                                     // Display Difference from Yesterday using Label
                                     if calculatedYesterdayIncome > 0 || calculatedTodayIncome > 0 {
-                                        Label("Rp \(incomeDifferenceFromYesterday.amount)", systemImage: incomeDifferenceFromYesterday.sign) // Use the symbol name directly
+                                        Label("Rp \(incomeDifferenceFromYesterday.amount)", systemImage: incomeDifferenceFromYesterday.sign)
                                             .font(.system(size: 14, weight: .medium, design: .default))
-                                            .foregroundColor(incomeDifferenceFromYesterday.sign == "chart.line.uptrend.xyaxis" ? .green.opacity(0.85) : .red.opacity(0.85)) // Color based on symbol
-                                            .labelStyle(.titleAndIcon) // Ensure icon is shown
+                                            .foregroundColor(incomeDifferenceFromYesterday.sign == "chart.line.uptrend.xyaxis" ? .green.opacity(0.85) : .red.opacity(0.85))
+                                            .labelStyle(.titleAndIcon)
                                     }
                                 }
                                 Spacer()
@@ -151,7 +149,6 @@ struct SalesRecap: View {
 
                 // MARK: Time Range Picker
                 Picker("Time Range", selection: $timeRange) {
-                    // Use the updated timeRanges array
                     ForEach(timeRanges, id: \.self) { range in
                         Text(range)
                     }
@@ -161,70 +158,86 @@ struct SalesRecap: View {
                 
                 // MARK: Orders List Area (Conditional Display)
                 if !shouldShowList {
-                    // Display "No Data" message if relevant list is empty
                     Spacer()
                     Text("No Sales Data for \(timeRange)")
-                        .font(.system(size: 20, weight: .medium, design: .default))
+                        .font(.system(size: 20, weight: .medium))
                         .foregroundColor(.gray)
                         .frame(maxWidth: .infinity, alignment: .center)
                     Spacer()
                 } else {
-                    // Display the appropriate list based on timeRange
                     ScrollView {
-                        VStack(alignment: .leading, spacing: 15) { // Added spacing between days/items
+                        VStack(alignment: .leading, spacing: 0) { // spacing 0 jika divider menangani jarak
                             switch timeRange {
                             case "Today", "Weekly":
-                                // Display flat list for Today and Weekly
+                                // Tampilkan daftar order individual
                                 ForEach(filteredOrders) { order in
                                     Sales(
-                                        items: convertOrderItemsToDishDisplayItems(order.items),
+                                        items: convertOrderItemsToDishDisplayItems(order.items), // Konversi tetap di sini
                                         total: SalesCalculator.orderTotal(order),
                                         time: order.date
                                     )
-                                    .padding(.horizontal)
+                                    // Padding udah diatur di dalam Sales view
                                 }
-                                
+
                             case "Daily":
-                                // Display grouped list for Daily
-                                ForEach(dailyGroupedOrders) { dayGroup in
-                                    Section {
-                                        ForEach(dayGroup.orders) { order in
-                                            Sales(
-                                                items: convertOrderItemsToDishDisplayItems(order.items),
-                                                total: SalesCalculator.orderTotal(order),
-                                                time: order.date // Show individual order time
-                                            )
-                                            .padding(.horizontal)
-                                        }
-                                    } header: {
-                                        // Header for each day group
+                                // Ini buat tampilan ringkasan harian yang sudah diagregasi
+                                ForEach(dailyAggregatedGroups) { dayGroup in
+                                    VStack(alignment: .leading, spacing: 8) { // VStack untuk header + grid
+                                        // Header Harian
                                         HStack {
-                                            Text(dayGroup.date, style: .date) // Format date nicely (e.g., "April 9, 2025")
-                                                .font(.headline)
-                                                .fontWeight(.medium)
+                                            VStack(alignment: .trailing){
+                                                Text(dayGroup.date, style: .date)
+                                                    .font(.headline)
+                                                    .fontWeight(.bold)
+                                                Spacer()
+                                            }
                                             Spacer()
-                                            // Optionally show daily total/count in header
                                             VStack(alignment: .trailing){
                                                  Text("Rp \(dayGroup.totalIncome)")
                                                       .font(.subheadline)
-                                                      .foregroundColor(.secondary)
+                                                      .foregroundColor(.black)
                                                   Text("\(dayGroup.salesCount) sales")
                                                      .font(.caption)
                                                      .foregroundColor(.gray)
                                             }
-                                             
                                         }
                                         .padding(.horizontal)
-                                        .padding(.top, 10) // Add padding above headers
+                                        .padding(.top, 10) // Beri jarak di atas header
+
+                                        // Grid untuk item yang sudah diagregasi
+                                        // Gunakan convertOrderItemsToDishDisplayItems di sini jika ingin grouping "Other"
+                                        let displayItems = convertOrderItemsToDishDisplayItems(dayGroup.aggregatedItems)
+
+                                        LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 8) {
+                                            ForEach(displayItems.prefix(6)) { item in // Batasi jika perlu
+                                                HStack(spacing: 5) {
+                                                    Circle()
+                                                        .fill(item.color.opacity(0.8))
+                                                        .frame(width: 10, height: 10)
+                                                    Text("\(item.name) x\(item.count)") // Tampilkan nama dan total count
+                                                        .font(.system(size: 13, weight: .regular))
+                                                        .lineLimit(1)
+                                                        .truncationMode(.tail)
+                                                }
+                                            }
+                                            
+                                        }
+                                        .padding(.horizontal) // Padding untuk grid
+
+                                    } // End VStack Header+Grid
+                                    .padding(10)
+
+                                    // Divider antar hari
+                                    if dayGroup.id != dailyAggregatedGroups.last?.id { // Jangan tampilkan divider setelah item terakhir
+                                        Divider().padding(.horizontal, 17)
                                     }
-                                } // End ForEach dailyGroupedOrders
+
+                                } // End ForEach dailyAggregatedGroups
 
                             default:
-                                // Should not happen
                                 EmptyView()
                             }
                         }
-                        .padding(.top, 5) // Reduce top padding for ScrollView content
                     } // End ScrollView
                 } // End if/else for list display
                 Spacer() // Pushes content up if list is short
@@ -253,7 +266,29 @@ struct SalesRecap: View {
         
     }
 
-    func convertOrderItemsToDishDisplayItems(_ orderItems: [OrderItem]) -> [DishDisplayItem] {
+    // Fungsi ini sekarang bisa nerima [OrderItem] atau [DishDisplayItem]
+    // klo nerima [DishDisplayItem], dia bakal mengelompokkan item "Other" dari hasil agregasi
+    private func convertOrderItemsToDishDisplayItems(_ items: [DishDisplayItem]) -> [DishDisplayItem] {
+       var regulars: [DishDisplayItem] = []
+       var additionalTotal = 0
+
+       for item in items {
+           if isAdditional(item.name) {
+               additionalTotal += item.count // Jumlah count dari item "Other"
+           } else {
+               regulars.append(item)
+           }
+       }
+
+       if additionalTotal > 0 {
+           regulars.append(DishDisplayItem(name: "Other", count: additionalTotal, color: SalesCalculator.colorForDish(name: "Other")))
+       }
+       // Urutin klo perlu setelah nambahin "Other"
+       return regulars.sorted { $0.name < $1.name }
+    }
+
+    // Overload untuk tipe [OrderItem] (buat Today/ sementar buat Weekly blm jadi soalnya hehe)
+    private func convertOrderItemsToDishDisplayItems(_ orderItems: [OrderItem]) -> [DishDisplayItem] {
         var regulars: [DishDisplayItem] = []
         var additionalTotal = 0
 
@@ -262,16 +297,15 @@ struct SalesRecap: View {
                 additionalTotal += item.quantity
             } else {
                 regulars.append(
-                    DishDisplayItem(name: item.name, count: item.quantity, color: colorForDish(name: item.name))
+                    DishDisplayItem(name: item.name, count: item.quantity, color: SalesCalculator.colorForDish(name: item.name))
                 )
             }
         }
 
         if additionalTotal > 0 {
-            regulars.append(DishDisplayItem(name: "Other", count: additionalTotal, color: .purple))
+            regulars.append(DishDisplayItem(name: "Other", count: additionalTotal, color: SalesCalculator.colorForDish(name: "Other")))
         }
-
-        return regulars
+        return regulars.sorted { $0.name < $1.name }
     }
 
     func isAdditional(_ name: String) -> Bool {

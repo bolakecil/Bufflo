@@ -1,12 +1,29 @@
 import SwiftUI
 
+// Komen dulu coba pake hasher
 // Assume DishDisplayItem is defined as provided:
- struct DishDisplayItem: Identifiable {
-     let id = UUID()
-     let name: String
-     let count: Int
-     let color: Color
- }
+// struct DishDisplayItem: Identifiable {
+//     let id = UUID()
+//     let name: String
+//     let count: Int
+//     let color: Color
+// }
+
+
+struct DishDisplayItem: Identifiable, Hashable {
+    let id = UUID()
+    let name: String
+    var count: Int // <<< Ubah dari let ke var
+    let color: Color
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+    static func == (lhs: DishDisplayItem, rhs: DishDisplayItem) -> Bool {
+        lhs.id == rhs.id
+    }
+}
 
 struct Sales: View {
     let items: [DishDisplayItem]
@@ -51,15 +68,15 @@ struct Sales: View {
                     }
                 }
                  .frame(maxWidth: .infinity, alignment: .leading)
-                // .frame(maxWidth: 200) // Example: Fixed max width if needed
+                // .frame(maxWidth: 200)
 
             }
-            .padding(.horizontal, 20) // Consolidated horizontal padding
-            .padding(.vertical, 12) // Added vertical padding
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
 
             // Divider below the content
             Divider()
-                .padding(.horizontal, 17) // Keep horizontal padding for divider
+                .padding(.horizontal, 17)
         } // End main VStack
     }
 }
@@ -73,7 +90,7 @@ struct Sales: View {
         DishDisplayItem(name: "Telor Dadar", count: 2, color: Color("Yellow", default: .yellow)),
         DishDisplayItem(name: "Sayur Asem", count: 1, color: Color("Green", default: .green)),
         DishDisplayItem(name: "Sambal", count: 3, color: .purple),
-        DishDisplayItem(name: "Kerupuk", count: 2, color: .gray)
+        DishDisplayItem(name: "Kerupuk", count: 2, color: .gray) // maksimal 6 harusnya ini gk nampil sih
     ]
 
     return ScrollView {
