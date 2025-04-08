@@ -9,7 +9,7 @@ struct SalesRecap: View {
     @Query(sort: \Order.date, order: .reverse) private var allOrders: [Order]
     @State private var timeOfDay: String = "Morning"
     @State private var timeRange: String = "Today"
-    private var timeRanges = ["Today", "This Week", "This Month"]
+    private var timeRanges = ["Today", "Daily", "Monthly"]
 
     private var calculatedTotalIncomeThisMonth: Int {
         let calendar = Calendar.current
@@ -18,6 +18,19 @@ struct SalesRecap: View {
 
         return allOrders
             .filter { $0.date >= monthAgo }
+            .reduce(0) { total, order in
+                total + order.items.reduce(0) { $0 + ($1.price * $1.quantity) }
+            }
+    }
+    
+    
+    /// Ini buat hitung total income minggu ini tapi dia kayaknya return 7 hari sebelum hari ini bukan per-minggu berdasarkan kalendar
+    private var calculatedTotalIncomeThisWeek: Int {
+        let calendar = Calendar.current
+        let now = Date()
+        guard let weekAgo = calendar.date(byAdding: .day, value: -1, to: now) else { return 0 }
+        return allOrders
+            .filter { $0.date >= weekAgo }
             .reduce(0) { total, order in
                 total + order.items.reduce(0) { $0 + ($1.price * $1.quantity) }
             }
@@ -81,13 +94,13 @@ struct SalesRecap: View {
                         .frame(height: 210)
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
-                            Text("Total Income This Month")
+                            Text("Total Income This Week")
                                 .font(.system(size: 22, weight: .bold, design: .default))
                                 .foregroundColor(.white)
                             Spacer()
                         }
                         
-                        Text("Rp \(calculatedTotalIncomeThisMonth)")
+                        Text("Rp \(calculatedTotalIncomeThisWeek)")
                             .font(.system(size: 33, weight: .bold, design: .default))
                             .foregroundColor(.white)
                         VStack{

@@ -78,6 +78,19 @@ struct SalesCalculator {
     }
 
 
+    /// Calculates the total income for this weeks.
+    static func calculateIncomeThisWeek(orders: [Order]) -> Int {
+        let calendar = Calendar.current
+        let now = Date()
+        guard let startOfWeek = calendar.date(byAdding: .weekOfYear, value: 0, to: now) else { return 0 }
+        
+        return orders
+            .filter { $0.date >= startOfWeek }
+            .reduce(0) { total, order in
+                total + orderTotal(order)
+            }
+    }    
+    
     /// Calculates the total sales count for a specific date.
     static func calculateSalesCount(for date: Date, orders: [Order]) -> Int {
         let calendar = Calendar.current
@@ -106,4 +119,6 @@ struct SalesCalculator {
     static func yesterday() -> Date? {
         Calendar.current.date(byAdding: .day, value: -1, to: Date())
     }
+    
+    
 }
