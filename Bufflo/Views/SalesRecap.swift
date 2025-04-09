@@ -88,7 +88,7 @@ struct SalesRecap: View {
         }
     }
         
-    let gridColumns = [GridItem(.adaptive(minimum: 80), spacing: 8)]
+    let gridColumns = [GridItem(.adaptive(minimum: 80), spacing: 5)]
     
     // MARK: - Body
 
@@ -207,13 +207,14 @@ struct SalesRecap: View {
                                             }
                                         }
                                         .padding(.horizontal)
-                                        .padding(.top, 10) // Beri jarak di atas header
+                                        .padding(.top, 8)
+                                        .padding(.bottom, 5)
 
                                         // Grid untuk item yang sudah diagregasi
                                         // Gunakan convertOrderItemsToDishDisplayItems di sini jika ingin grouping "Other"
                                         let displayItems = convertOrderItemsToDishDisplayItems(dayGroup.aggregatedItems)
 
-                                        LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 8) {
+                                        LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 5) {
                                             ForEach(displayItems.prefix(6)) { item in // Batasi jika perlu
                                                 HStack(spacing: 5) {
                                                     Circle()
@@ -230,7 +231,7 @@ struct SalesRecap: View {
                                         .padding(.horizontal) // Padding untuk grid
 
                                     } // End VStack Header+Grid
-                                    .padding(10)
+                                    .padding(15)
 
                                     // Divider antar hari
                                     if dayGroup.id != dailyAggregatedGroups.last?.id { // Jangan tampilkan divider setelah item terakhir
@@ -261,12 +262,13 @@ struct SalesRecap: View {
                                              }
                                          }
                                          .padding(.horizontal)
-                                         .padding(.top, 10)
+                                         .padding(.top, 8)
+                                         .padding(.bottom, 5)
 
                                          // Grid Item Mingguan
                                          let displayItemsWeekly = convertOrderItemsToDishDisplayItems(weekGroup.aggregatedItems)
-                                         LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 8) {
-                                             ForEach(displayItemsWeekly.prefix(9)) { item in // Mungkin bisa tampilkan lebih banyak untuk mingguan?
+                                         LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 5) {
+                                             ForEach(displayItemsWeekly.prefix(6)) { item in // Mungkin bisa tampilkan lebih banyak untuk mingguan?
                                                  HStack(spacing: 5) {
                                                      Circle()
                                                          .fill(item.color.opacity(0.8))
@@ -281,7 +283,7 @@ struct SalesRecap: View {
                                          .padding(.horizontal)
 
                                      } // End VStack Header+Grid
-                                     .padding(10)
+                                     .padding(15)
 
                                      // Divider antar minggu
                                      if weekGroup.id != weeklyAggregatedGroups.last?.id {
@@ -298,7 +300,7 @@ struct SalesRecap: View {
                 Spacer()
             }
             .navigationTitle("Good \(timeOfDay)")
-            .navigationBarBackButtonHidden(true)
+//            .navigationBarBackButtonHidden(true)
             .onAppear {
                 timeOfDay = updateTimeOfDay()
                 // print("Orders fetched: \(allOrders.count)") // Optional debug
@@ -353,11 +355,11 @@ struct SalesRecap: View {
            calendar.isDate(start, equalTo: end, toGranularity: .year) {
             // Hanya tampilkan bulan sekali jika sama
             let endFormatter = DateFormatter()
-            endFormatter.dateFormat = "d, yyyy" // Format: 13, 2025
+            endFormatter.dateFormat = "d yyyy" // Format: 13, 2025
             return "\(formatter.string(from: start)) - \(endFormatter.string(from: end))" // Contoh: Apr 7 - 13, 2025
         } else {
             // Tampilkan bulan & tahun lengkap jika berbeda
-            formatter.dateFormat = "MMM d, yyyy" // Format: Apr 7, 2025
+            formatter.dateFormat = "MMM d yyyy" // Format: Apr 7, 2025
             return "\(formatter.string(from: start)) - \(formatter.string(from: end))" // Contoh: Dec 29, 2024 - Jan 4, 2025
         }
     }
