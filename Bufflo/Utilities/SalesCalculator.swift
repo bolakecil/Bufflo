@@ -1,16 +1,7 @@
-//
-//  SalesCalculator.swift
-//  Bufflo
-//
-//  Created by Muhammad Azmi on 07/04/25.
-//
-
-
 import Foundation
 import SwiftUI
-import SwiftData // If Order/OrderItem are defined here or needed
+import SwiftData
 
-// Assume Order and OrderItem look something like this (adjust if needed):
 /*
 @Model
 final class Order {
@@ -37,7 +28,7 @@ final class OrderItem {
 }
 */
 
-// MARK: - Struct untuk Grup Harian (Dimodifikasi)
+// MARK: - Struct untuk Grup Harian
 struct DailyGroup: Identifiable {
     let id: Date // Start of day
     let date: Date
@@ -46,11 +37,22 @@ struct DailyGroup: Identifiable {
     var salesCount: Int // Jumlah order hari itu
 }
 
+// MARK: - Struct untuk Grup Mingguan
+struct WeeklyGroup: Identifiable {
+    let id: Date // Start of week date sebagai ID unik
+    let startDate: Date // Tanggal mulai minggu
+    let endDate: Date // Tanggal akhir minggu (untuk display)
+    var aggregatedItems: [DishDisplayItem] // Item yang sudah ditotal per minggu
+    var totalIncome: Int // Total pendapatan minggu itu
+    var salesCount: Int // Jumlah order minggu itu
+}
+
+
 struct SalesCalculator {
 
 //    static func groupOrdersByDay(orders: [Order]) -> [DailyGroup] {
 //        let calendar = Calendar.current
-//        
+//
 //        // Use Dictionary(grouping:by:) for efficient grouping
 //        let groupedByDay = Dictionary(grouping: orders) { order -> Date in
 //            // Normalize the date to the start of the day for consistent grouping
@@ -78,6 +80,71 @@ struct SalesCalculator {
          }
      }
     
+    /// Grup order per minggu kalender dan hitung total item per minggu.
+        static func groupOrdersByWeekAndAggregateItems(orders: [Order]) -> [WeeklyGroup] {
+            let calendar = Calendar.current // Gunakan locale yang sesuai jika perlu
+
+            // 1. Grup order berdasarkan tanggal mulai minggu kalender
+            let groupedByWeekStartDate = Dictionary(grouping: orders) { order -> Date in
+                // Dapatkan interval minggu untuk tanggal order
+                guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: order.date) else {
+                    return calendar.startOfDay(for: order.date)
+                }
+                return weekInterval.start // Gunakan tanggal mulai minggu sebagai key
+            }
+
+            // 2. Proses setiap grup mingguan untuk agregasi item
+            let weeklyAggregatedGroups = groupedByWeekStartDate.map { (weekStartDate, ordersForWeek) -> WeeklyGroup in
+
+                // Hitung total income dan sales count untuk minggu ini
+                let weeklyTotalIncome = ordersForWeek.reduce(0) { $0 + orderTotal($1) }
+                let weeklySalesCount = ordersForWeek.count
+
+                // Agregasi item (logika sama seperti harian)
+                var itemTotals = [String: DishDisplayItem]() // Key: Nama item
+
+                for order in ordersForWeek {
+                    for item in order.items {
+                        let name = item.name
+                        let quantity = item.quantity
+                        let color = colorForDish(name: name)
+
+                        if var existingItem = itemTotals[name] {
+                            existingItem.count += quantity
+                            itemTotals[name] = existingItem
+                        } else {
+                            itemTotals[name] = DishDisplayItem(name: name, count: quantity, color: color)
+                        }
+                    }
+                }
+                
+                // Konversi dictionary kembali ke array dan urutkan
+                let aggregatedItemsArray = Array(itemTotals.values).sorted { $0.name < $1.name }
+                
+                // Dapatkan tanggal akhir minggu untuk display
+                // (Hati-hati: end date dari dateInterval adalah awal dari interval berikutnya)
+                let endDate: Date
+                if let weekInterval = calendar.dateInterval(of: .weekOfYear, for: weekStartDate),
+                   let calculatedEndDate = calendar.date(byAdding: .day, value: -1, to: weekInterval.end) {
+                    endDate = calculatedEndDate
+                } else {
+                    // Fallback jika interval tidak ditemukan lagi
+                    endDate = calendar.date(byAdding: .day, value: 6, to: weekStartDate) ?? weekStartDate // Default: tambah 6 hari
+                }
+
+
+                // Buat instance WeeklyGroup
+                return WeeklyGroup(id: weekStartDate,
+                                   startDate: weekStartDate,
+                                   endDate: endDate,
+                                   aggregatedItems: aggregatedItemsArray,
+                                   totalIncome: weeklyTotalIncome,
+                                   salesCount: weeklySalesCount)
+
+            }.sorted { $0.startDate > $1.startDate } // Urutkan grup berdasarkan minggu (terbaru dulu)
+
+            return weeklyAggregatedGroups
+        }
     /// Grup order per hari dan hitung total item per hari.
        static func groupOrdersByDayAndAggregateItems(orders: [Order]) -> [DailyGroup] {
            let calendar = Calendar.current
@@ -164,7 +231,7 @@ struct SalesCalculator {
     static func calculateIncomeLast30Days(orders: [Order]) -> Int {
         let calendar = Calendar.current
         let now = Date()
-        guard let monthAgo = calendar.date(byAdding: .day, value: -30, to: now) else { return 0 } // More precise 30 days
+        guard let monthAgo = calendar.date(byAdding: .day, value: -30, to: now) else { return 0 }
 
         return orders
             .filter { $0.date >= monthAgo }
@@ -181,9 +248,9 @@ struct SalesCalculator {
         // Get the date interval (start and end) of the week containing 'now'
         guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: now) else {
             print("Error: Could not determine the current week interval.")
-            return 0 // Return 0 if we can't find the week interval
+            return 0
         }
-        let startOfWeek = weekInterval.start // Get the actual start date of the week
+        let startOfWeek = weekInterval.start
 
         return orders
             // Filter orders that fall on or after the start of this week
@@ -237,4 +304,3 @@ struct SalesCalculator {
     
     
 }
-
