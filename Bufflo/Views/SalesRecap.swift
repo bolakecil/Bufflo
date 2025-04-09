@@ -50,39 +50,44 @@ struct SalesRecap: View {
         SalesCalculator.groupOrdersByDayAndAggregateItems(orders: allOrders)
     }
     
+    /// properti untuk grup mingguan yang diagregasi
+    private var weeklyAggregatedGroups: [WeeklyGroup] {
+        SalesCalculator.groupOrdersByWeekAndAggregateItems(orders: allOrders)
+    }
+
     
     // MARK: - Filtered Orders
 
+    /// Filter order untuk 'Today'
     var filteredOrders: [Order] {
-       let calendar = Calendar.current
-       let now = Date()
-
+        let calendar = Calendar.current
+        let now = Date()
         switch timeRange {
         case "Today":
             return allOrders.filter { calendar.isDate($0.date, inSameDayAs: now) }
-        case "Weekly":
-            guard let startOfWeek = SalesCalculator.startOfCurrentWeek() else { return [] }
-            return allOrders.filter { $0.date >= startOfWeek }
-        case "Daily":
+        // Daily dan Weekly tidak menggunakan ini untuk daftar utama
+        case "Daily", "Weekly":
             return []
         default:
             return allOrders.filter { calendar.isDate($0.date, inSameDayAs: now) }
         }
     }
 
-    // Helper to determine if the list should be shown based on the selected range
+
+    // Perbarui helper untuk cek data
     private var shouldShowList: Bool {
         switch timeRange {
-        case "Today", "Weekly":
+        case "Today":
             return !filteredOrders.isEmpty
         case "Daily":
             return !dailyAggregatedGroups.isEmpty
+        case "Weekly":
+            return !weeklyAggregatedGroups.isEmpty
         default:
             return false
         }
     }
-    
-    // Definisikan kolom grid di sini agar bisa dipakai di case "Daily"
+        
     let gridColumns = [GridItem(.adaptive(minimum: 80), spacing: 8)]
     
     // MARK: - Body
@@ -168,7 +173,7 @@ struct SalesRecap: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 0) { // spacing 0 jika divider menangani jarak
                             switch timeRange {
-                            case "Today", "Weekly":
+                            case "Today":
                                 // Tampilkan daftar order individual
                                 ForEach(filteredOrders) { order in
                                     Sales(
@@ -233,6 +238,56 @@ struct SalesRecap: View {
                                     }
 
                                 } // End ForEach dailyAggregatedGroups
+                            case "Weekly":
+                                ForEach(weeklyAggregatedGroups) { weekGroup in
+                                     VStack(alignment: .leading, spacing: 8) {
+                                         // Header Mingguan
+                                         HStack {
+                                             // Format tanggal minggu
+                                             VStack{
+                                                 Text(formatWeekRange(start: weekGroup.startDate, end: weekGroup.endDate))
+                                                     .font(.headline)
+                                                     .fontWeight(.bold)
+                                                 Spacer()
+                                             }
+                                             Spacer()
+                                             VStack(alignment: .trailing){
+                                                  Text("Rp \(weekGroup.totalIncome)")
+                                                       .font(.subheadline)
+                                                       .foregroundColor(.black)
+                                                   Text("\(weekGroup.salesCount) sales")
+                                                      .font(.caption)
+                                                      .foregroundColor(.gray)
+                                             }
+                                         }
+                                         .padding(.horizontal)
+                                         .padding(.top, 10)
+
+                                         // Grid Item Mingguan
+                                         let displayItemsWeekly = convertOrderItemsToDishDisplayItems(weekGroup.aggregatedItems)
+                                         LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 8) {
+                                             ForEach(displayItemsWeekly.prefix(9)) { item in // Mungkin bisa tampilkan lebih banyak untuk mingguan?
+                                                 HStack(spacing: 5) {
+                                                     Circle()
+                                                         .fill(item.color.opacity(0.8))
+                                                         .frame(width: 10, height: 10)
+                                                     Text("\(item.name) x\(item.count)")
+                                                         .font(.system(size: 13, weight: .regular))
+                                                         .lineLimit(1)
+                                                         .truncationMode(.tail)
+                                                 }
+                                             }
+                                         }
+                                         .padding(.horizontal)
+
+                                     } // End VStack Header+Grid
+                                     .padding(10)
+
+                                     // Divider antar minggu
+                                     if weekGroup.id != weeklyAggregatedGroups.last?.id {
+                                         Divider().padding(.horizontal, 17)
+                                     }
+                                } // End ForEach weeklyAggregatedGroups
 
                             default:
                                 EmptyView()
@@ -240,7 +295,7 @@ struct SalesRecap: View {
                         }
                     } // End ScrollView
                 } // End if/else for list display
-                Spacer() // Pushes content up if list is short
+                Spacer()
             }
             .navigationTitle("Good \(timeOfDay)")
             .navigationBarBackButtonHidden(true)
@@ -285,6 +340,26 @@ struct SalesRecap: View {
        }
        // Urutin klo perlu setelah nambahin "Other"
        return regulars.sorted { $0.name < $1.name }
+    }
+    
+    // Helper untuk format rentang minggu
+    private func formatWeekRange(start: Date, end: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d" // Format: Apr 7
+
+        // Cek jika minggu berada dalam bulan & tahun yang sama
+        let calendar = Calendar.current
+        if calendar.isDate(start, equalTo: end, toGranularity: .month) &&
+           calendar.isDate(start, equalTo: end, toGranularity: .year) {
+            // Hanya tampilkan bulan sekali jika sama
+            let endFormatter = DateFormatter()
+            endFormatter.dateFormat = "d, yyyy" // Format: 13, 2025
+            return "\(formatter.string(from: start)) - \(endFormatter.string(from: end))" // Contoh: Apr 7 - 13, 2025
+        } else {
+            // Tampilkan bulan & tahun lengkap jika berbeda
+            formatter.dateFormat = "MMM d, yyyy" // Format: Apr 7, 2025
+            return "\(formatter.string(from: start)) - \(formatter.string(from: end))" // Contoh: Dec 29, 2024 - Jan 4, 2025
+        }
     }
 
     // Overload untuk tipe [OrderItem] (buat Today/ sementar buat Weekly blm jadi soalnya hehe)
