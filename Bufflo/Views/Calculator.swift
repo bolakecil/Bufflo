@@ -126,6 +126,9 @@ struct Calculator: View {
                 )
                 .environment(\.modelContext, modelContext)
             }
+            .onAppear() {
+                needsVerification = true
+            }
         }
         NavigationLink(
             destination: needVerify(needVerification: $needsVerification),
