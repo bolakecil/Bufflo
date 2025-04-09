@@ -10,6 +10,8 @@ struct MenuItem {
 }
 
 struct Calculator: View {
+    @Binding var needsVerification: Bool
+    @State private var navigateToVerification = false
     let rows = [GridItem(.fixed(2)), GridItem(.fixed(2))] //idk why this is 2
     @State private var navigate: Bool = false
     @State private var orderQuantities: [String: Int] = [:] //this is called a dictionary
@@ -64,7 +66,8 @@ struct Calculator: View {
 
                     }
                 }
-                .padding(.top, 12)
+                .padding(.top, 20)
+                .padding(.bottom, 8)
                 RoundedRectangle(cornerRadius: 5)
                     .fill(Color.gray)
                     .frame(width: 300, height: 3)
@@ -77,6 +80,7 @@ struct Calculator: View {
                         .font(.system(size: 32, weight: .bold, design: .default))
                 }
                 .padding(.horizontal, 50)
+                .padding(.vertical, 15)
                 Button(
                     action: {
                         showSummarySheet = true
@@ -98,6 +102,17 @@ struct Calculator: View {
             .navigationTitle(Text("Calculator"))
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarTitleTextColor(.darkBlue)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        navigateToVerification = true
+                    }) {
+                        Image(systemName: "wallet.bifold.fill")
+                            .imageScale(.large)
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
             .sheet(isPresented: $showSummarySheet) {
                 SalesSummarySheet(
                     orderQuantities: orderQuantities,
@@ -111,6 +126,12 @@ struct Calculator: View {
                 )
                 .environment(\.modelContext, modelContext)
             }
+        }
+        NavigationLink(
+            destination: needVerify(needVerification: $needsVerification),
+            isActive: $navigateToVerification
+        ) {
+            EmptyView()
         }
     }
     func binding(for key: String) -> Binding<Int> {
