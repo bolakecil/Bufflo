@@ -207,8 +207,7 @@ struct SalesRecap: View {
                                             }
                                         }
                                         .padding(.horizontal)
-                                        .padding(.top, 8)
-                                        .padding(.bottom, 5)
+                                        .padding(.vertical, 5)
 
                                         // Grid untuk item yang sudah diagregasi
                                         // Gunakan convertOrderItemsToDishDisplayItems di sini jika ingin grouping "Other"
@@ -228,6 +227,7 @@ struct SalesRecap: View {
                                             }
                                             
                                         }
+                                        .frame(width: 250)
                                         .padding(.horizontal) // Padding untuk grid
 
                                     } // End VStack Header+Grid
@@ -235,10 +235,11 @@ struct SalesRecap: View {
 
                                     // Divider antar hari
                                     if dayGroup.id != dailyAggregatedGroups.last?.id { // Jangan tampilkan divider setelah item terakhir
-                                        Divider().padding(.horizontal, 17)
+                                        Divider().padding(.horizontal, 20)
                                     }
 
-                                } // End ForEach dailyAggregatedGroups
+                                }
+                                // End ForEach dailyAggregatedGroups
                             case "Weekly":
                                 ForEach(weeklyAggregatedGroups) { weekGroup in
                                      VStack(alignment: .leading, spacing: 8) {
@@ -262,8 +263,7 @@ struct SalesRecap: View {
                                              }
                                          }
                                          .padding(.horizontal)
-                                         .padding(.top, 8)
-                                         .padding(.bottom, 5)
+                                         .padding(.vertical, 5)
 
                                          // Grid Item Mingguan
                                          let displayItemsWeekly = convertOrderItemsToDishDisplayItems(weekGroup.aggregatedItems)
@@ -280,6 +280,7 @@ struct SalesRecap: View {
                                                  }
                                              }
                                          }
+                                         .frame(width: 250)
                                          .padding(.horizontal)
 
                                      } // End VStack Header+Grid
@@ -287,9 +288,9 @@ struct SalesRecap: View {
 
                                      // Divider antar minggu
                                      if weekGroup.id != weeklyAggregatedGroups.last?.id {
-                                         Divider().padding(.horizontal, 17)
+                                         Divider().padding(.horizontal, 20)
                                      }
-                                } // End ForEach weeklyAggregatedGroups
+                                }// End ForEach weeklyAggregatedGroups
 
                             default:
                                 EmptyView()

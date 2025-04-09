@@ -24,7 +24,7 @@ struct SalesRecapVerify: View {
             .toolbar{
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
-                        if pin ==  "daganganlaku"{
+                        if pin ==  "bb"{
                             onSuccess() //sets needVerification to false
                         } else {
                             showAlert=true

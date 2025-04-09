@@ -76,8 +76,10 @@ struct Sales: View {
 
             // Divider below the content
             Divider()
-                .padding(.horizontal, 17)
+                .padding(.horizontal, 7)
+                
         } // End main VStack
+        .padding(.horizontal, 17)
     }
 }
 
