@@ -1,10 +1,10 @@
-<p align="center">
-  <img src="[assets/logo.png](https://github.com/user-attachments/assets/4de2f407-57f3-48b8-8ad8-645805a176dc)" alt="Bufflo Logo" width="120" />
+<p>
+  <img src="https://github.com/user-attachments/assets/4de2f407-57f3-48b8-8ad8-645805a176dc" alt="Bufflo Logo" width="120" />
 </p>
 
-<h1 align="center">Bufflo</h1>
+<h1>Bufflo</h1>
 
-<p align="center">
+<p>
   🧮 A simple and efficient food sales calculator and sales recap tool designed for small food businesses.
 </p>
 
@@ -12,7 +12,7 @@
 
 ## 📸 Preview
 
-<p align="center">
+<p>
   <img src="https://github.com/user-attachments/assets/802b6411-a6ff-4488-bb5e-bf7ee6f795b7" alt="Bufflo App Preview" width="600"/>
 </p>
 
