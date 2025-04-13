@@ -8,7 +8,6 @@
   🧮 A simple and efficient food sales calculator and sales recap tool designed for small food businesses.
 </p>
 
----
 
 ## 📸 Preview
 
@@ -16,7 +15,6 @@
   <img src="https://github.com/user-attachments/assets/802b6411-a6ff-4488-bb5e-bf7ee6f795b7" alt="Bufflo App Preview" width="600"/>
 </p>
 
----
 
 ## 📱 About Bufflo
 
@@ -24,7 +22,6 @@
 
 Whether you're running a food stall, pop-up, or small eatery, Bufflo helps you track what’s sold and how much revenue you’ve made — all in a lightweight, easy-to-use app.
 
----
 
 ## ✨ Features
 
@@ -34,7 +31,6 @@ Whether you're running a food stall, pop-up, or small eatery, Bufflo helps you t
 - 💾 Powered by SwiftData for local persistence
 - 🧮 Clean and intuitive UI for quick input and summaries
 
----
 
 ## 🧩 Tech Stack
 
@@ -42,7 +38,6 @@ Whether you're running a food stall, pop-up, or small eatery, Bufflo helps you t
 - **SwiftData** – Native data persistence solution  
 - **MVVM Architecture** – For clean separation of UI and data logic  
 
----
 
 ## 🗂️ Data Models
 
@@ -60,7 +55,6 @@ Whether you're running a food stall, pop-up, or small eatery, Bufflo helps you t
 | `price`    | Double   | Price per item         |
 | `quantity` | Int      | Quantity ordered       |
 
----
 
 ## 👩‍💻 Authors
 - Jessica @bolakecil
